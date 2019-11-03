@@ -1,18 +1,19 @@
 #include "SCGMM_JT.h"
 
+
 cv::Mat origImg, segImg, gtImg;
 
 cv::Mat fgdSamples, bgdSamples;
 
 int main(int argc, char *argv[]) {
 	vector<cv::Mat> origImgs, gtImgs;
-
+	cout<<"ssss";
 	cout << "Reading " << argv[1] << " original and ground truth images... ";
 	getImgSeqFromDir(argv[2], argv[3], atoi(argv[1]), origImgs, gtImgs);
 	cout << "Done!" << endl;
 
 	origImg = origImgs.front();
-	gtImg = gtImgs.front();
+	gtImg = gtImgs.front(); 
 
 	cv::namedWindow("original");
 	cv::namedWindow("ground truth");
