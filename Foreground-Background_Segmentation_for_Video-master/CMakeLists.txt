@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8)
+project( Foreground-Background_Segmentation_for_Video-master )
+set(OpenCV_DIR E:/Softwares/OpenCV2.4/opencv/build/)
+find_package( OpenCV REQUIRED )
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/include )
+add_executable( main main.cpp )
+target_link_libraries( main ${OpenCV_LIBS} )
