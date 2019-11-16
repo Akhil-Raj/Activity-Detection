@@ -17,12 +17,14 @@ void getImgSeqFromDir(const char *imgDir, const char *gtDir, int nimg, vector<cv
 
 	cv::Mat resized;
 	char path[500];
+	int keys[] = {0, 143, 145, 147, 151};
 	for (int imgIndex = 0; imgIndex < nimg; imgIndex++) {
-		sprintf(path, "%s\\%05d.jpg", imgDir, imgIndex);
+		sprintf(path, "%s/%d.png", imgDir, keys[imgIndex]);
+		//cout<<path;
 		cv::resize(cv::imread(path), resized, cv::Size(), 0.4, 0.4);
 		imgs.push_back(resized.clone());
 
-		sprintf(path, "%s\\%05d.png", gtDir, imgIndex);
+		sprintf(path, "%s/%dprocessed.png", gtDir, keys[imgIndex]);
 		cv::resize(cv::imread(path), resized, cv::Size(), 0.4, 0.4);
 		gts.push_back(resized.clone());
 	}

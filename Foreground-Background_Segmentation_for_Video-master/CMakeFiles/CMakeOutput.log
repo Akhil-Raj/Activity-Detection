@@ -1,0 +1,14 @@
+The system is: Linux - 4.15.0-66-generic - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/cc 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/media/akhil/Code1/GitHubSyncedRepos/Activity-Detection/Foreground-Background_Segmentation_for_Video-master/CMakeFiles/3.13.1/CompilerIdC/a.out"
+

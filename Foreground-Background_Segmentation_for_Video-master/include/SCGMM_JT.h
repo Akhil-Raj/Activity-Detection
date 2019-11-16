@@ -3,6 +3,7 @@
 
 #include "utils.h"
 #include "graphcut.hpp"
+#include "opencv2/ml.hpp"
 
 class SCGMM_JT {
 private:
@@ -12,17 +13,19 @@ private:
 	 * Parameters for the foreground SCGMM model.
 	 */
 	int fgdNclusters;
-	cv::Mat fgdWeights, fgdMeans, fgdProbs;
+	cv::Mat fgdWeights, fgdMeans, fgdProbs, fgdResponses;
 	vector<cv::Mat> fgdCovs;
-	cv::EM fgdEm;
+	//cv::EM fgdEm;
+	cv::Ptr<cv::ml::EM> fgdEm;
 
 	/*
 	 * Parameters for the background SCGMM model.
 	 */
 	int bgdNclusters;
-	cv::Mat bgdWeights, bgdMeans, bgdProbs;
+	cv::Mat bgdWeights, bgdMeans, bgdProbs, bgdResponses;
 	vector<cv::Mat> bgdCovs;
-	cv::EM bgdEm;
+	//cv::EM bgdEm;
+    cv::Ptr<cv::ml::EM> bgdEm;
 
 	/*
 	 * Parameters for SCGMM joint tracking.
@@ -165,15 +168,23 @@ void SCGMM_JT::postUpdate(const cv::Mat &mask) {
 			bgdSamples.push_back(trainSamples.row(sampleIndex));
 	}
 
-	fgdEm.trainE(fgdSamples, fgdMeans, fgdCovs, fgdWeights);
-	fgdWeights = fgdEm.get<cv::Mat>("weights");
-	fgdMeans = fgdEm.get<cv::Mat>("means");
-	fgdCovs = fgdEm.get<vector<cv::Mat>>("covs");
+	//fgdEm.trainE(fgdSamples, fgdMeans, fgdCovs, fgdWeights);
+	//fgdWeights = fgdEm.get<cv::Mat>("weights");
+	//fgdMeans = fgdEm.get<cv::Mat>("means");
+	//fgdCovs = fgdEm.get<vector<cv::Mat>>("covs");
+	fgdEm->trainE(fgdSamples, fgdMeans, fgdCovs, fgdWeights);
+	fgdWeights = fgdEm->getWeights();
+	fgdMeans = fgdEm->getMeans();
+	fgdEm->getCovs(fgdCovs);
 
-	bgdEm.trainE(bgdSamples, bgdMeans, bgdCovs, bgdWeights);
-	bgdWeights = bgdEm.get<cv::Mat>("weights");
-	bgdMeans = bgdEm.get<cv::Mat>("means");
-	bgdCovs = bgdEm.get<vector<cv::Mat>>("covs");
+	//bgdEm.trainE(bgdSamples, bgdMeans, bgdCovs, bgdWeights);
+	//bgdWeights = bgdEm.get<cv::Mat>("weights");
+	//bgdMeans = bgdEm.get<cv::Mat>("means");
+	//bgdCovs = bgdEm.get<vector<cv::Mat>>("covs");
+    bgdEm->trainE(bgdSamples, bgdMeans, bgdCovs, bgdWeights);
+    bgdWeights = bgdEm->getWeights();
+    bgdMeans = bgdEm->getMeans();
+    bgdEm->getCovs(bgdCovs);
 }
 
 SCGMM_JT::SCGMM_JT(int fgdNclusters, int bgdNclusters, cv::TermCriteria termCrit) {
@@ -183,17 +194,34 @@ SCGMM_JT::SCGMM_JT(int fgdNclusters, int bgdNclusters, cv::TermCriteria termCrit
 }
 
 void SCGMM_JT::init(const cv::Mat &src, const cv::Mat &fgdSamples, const cv::Mat &bgdSamples) {
-	fgdEm = cv::EM(fgdNclusters, cv::EM::COV_MAT_GENERIC, termCrit);
-	fgdEm.train(fgdSamples);
-	fgdWeights = fgdEm.get<cv::Mat>("weights");
-	fgdMeans = fgdEm.get<cv::Mat>("means");
-	fgdCovs = fgdEm.get<vector<cv::Mat>>("covs");
+	fgdEm = cv::ml::EM::create();
+    //fgdEm = cv::EM(fgdNclusters, cv::EM::COV_MAT_GENERIC, termCrit);
+    fgdEm->setClustersNumber(fgdNclusters);
+    fgdEm->setCovarianceMatrixType(cv::ml::EM::COV_MAT_GENERIC);
+    fgdEm->setTermCriteria(termCrit);
+	//fgdEm.train(fgdSamples);
+	fgdEm->train(fgdSamples, 0, fgdResponses);
+	//fgdWeights = fgdEm.get<cv::Mat>("weights");
+	fgdWeights = fgdEm->getWeights();
+	//fgdMeans = fgdEm.get<cv::Mat>("means");
+	fgdMeans = fgdEm->getMeans();
+	//fgdCovs = fgdEm.get<vector<cv::Mat>>("covs");
+	fgdEm->getCovs(fgdCovs);
 
-	bgdEm = cv::EM(bgdNclusters, cv::EM::COV_MAT_GENERIC, termCrit);
-	bgdEm.train(bgdSamples);
-	bgdWeights = bgdEm.get<cv::Mat>("weights");
-	bgdMeans = bgdEm.get<cv::Mat>("means");
-	bgdCovs = bgdEm.get<vector<cv::Mat>>("covs");
+	//bgdEm = cv::EM(bgdNclusters, cv::EM::COV_MAT_GENERIC, termCrit);
+	bgdEm = cv::ml::EM::create();
+
+	bgdEm->setClustersNumber(bgdNclusters);
+	bgdEm->setCovarianceMatrixType(cv::ml::EM::COV_MAT_GENERIC);
+	bgdEm->setTermCriteria(termCrit);
+	//bgdEm.train(bgdSamples);
+	bgdEm->train(bgdSamples, 0, bgdResponses);
+	//bgdWeights = bgdEm.get<cv::Mat>("weights");
+    bgdWeights = bgdEm->getWeights();
+	//bgdMeans = bgdEm.get<cv::Mat>("means");
+	bgdMeans = bgdEm->getMeans();
+	//bgdCovs = bgdEm.get<vector<cv::Mat>>("covs");
+	bgdEm->getCovs(bgdCovs);
 
 	nclusters = fgdNclusters + bgdNclusters;
 	weights.create(1, nclusters, CV_64FC1); weights.setTo(1.0 / nclusters);

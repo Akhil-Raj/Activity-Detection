@@ -1,0 +1,3 @@
+/media/akhil/Code1/GitHubSyncedRepos/Activity-Detection/Foreground-Background_Segmentation_for_Video-master/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/media/akhil/Code1/GitHubSyncedRepos/Activity-Detection/Foreground-Background_Segmentation_for_Video-master/cmake-build-debug/CMakeFiles/main.dir
+/media/akhil/Code1/GitHubSyncedRepos/Activity-Detection/Foreground-Background_Segmentation_for_Video-master/cmake-build-debug/CMakeFiles/edit_cache.dir
